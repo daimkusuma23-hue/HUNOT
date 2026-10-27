@@ -17,9 +17,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Clean & Build with Gradle
+      - name: Download Gradle 8.5 & Build APK
         run: |
-          rm -rf gradle/wrapper/gradle-wrapper.properties gradlew gradlew.bat
+          wget https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip -q gradle-8.5-bin.zip
+          export PATH=$PWD/gradle-8.5/bin:$PATH
+          
+          # Buat wrapper manual agar sinkron
           gradle wrapper --gradle-version 8.5
           chmod +x gradlew
           ./gradlew assembleDebug
