@@ -107,16 +107,17 @@
             <span id="current-date" class="text-[10px] text-nothing-muted font-mono tracking-widest uppercase">MON, 27 OCT 2026</span>
         </div>
 
-        <!-- RIGHT: VEHICLE STATUS -->
+        <!-- RIGHT: VEHICLE STATUS & LAUNCHER SWITCHER -->
         <div class="flex items-center gap-3 font-mono">
-            <div class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                <i class="fa-solid fa-wifi text-white text-xs"></i>
-                <span class="text-white text-[10px]">CONNECTED</span>
+            <div id="gps-status" class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                <i class="fa-solid fa-location-arrow text-nothing-red text-xs"></i>
+                <span id="gps-text" class="text-white text-[10px]">MENCARI GPS...</span>
             </div>
-            <div class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                <i class="fa-solid fa-car text-nothing-red text-xs"></i>
-                <span class="text-white text-[10px]">UP-F87L</span>
-            </div>
+            <!-- BUTTON UNTUK KEMBALI KE LAUNCHER BAWAAN -->
+            <button onclick="openNativeLauncher()" title="Kembali ke Launcher Bawaan Android" class="flex items-center gap-2 bg-nothing-red/20 hover:bg-nothing-red text-white px-3 py-1.5 rounded-full border border-nothing-red transition-all active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-house text-xs"></i>
+                <span class="text-[10px] font-bold tracking-wider">LAUNCHER ASLI</span>
+            </button>
         </div>
     </header>
 
@@ -129,17 +130,17 @@
             <!-- SPEEDOMETER WIDGET -->
             <div class="glass-card rounded-3xl p-6 flex items-center justify-between relative overflow-hidden">
                 <div class="flex flex-col">
-                    <span class="text-xs font-mono text-nothing-muted uppercase tracking-widest">Kecepatan</span>
+                    <span class="text-xs font-mono text-nothing-muted uppercase tracking-widest">Kecepatan Real-time</span>
                     <div class="flex items-baseline gap-2 mt-1">
-                        <span id="current-speed" class="font-dot text-6xl font-bold text-white tracking-tighter">45</span>
+                        <span id="current-speed" class="font-dot text-6xl font-bold text-white tracking-tighter">0</span>
                         <span class="text-sm font-mono font-bold text-nothing-red">KM/H</span>
                     </div>
                 </div>
 
-                <!-- SPEED LIMIT INDICATOR -->
+                <!-- SPEED LIMIT INDICATOR (UNLIMITED) -->
                 <div class="w-16 h-16 rounded-full border-4 border-nothing-red bg-black/50 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(215,25,33,0.4)]">
-                    <span class="text-[9px] text-nothing-muted font-mono font-bold">LIMIT</span>
-                    <span class="font-dot text-lg font-bold text-white">60</span>
+                    <span class="text-[9px] text-nothing-muted font-mono font-bold leading-none">LIMIT</span>
+                    <span class="font-dot text-2xl font-bold text-white leading-none mt-1">∞</span>
                 </div>
             </div>
 
@@ -147,16 +148,16 @@
             <div class="glass-card rounded-3xl p-5 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl text-nothing-red">
-                        <i class="fa-solid fa-cloud-showers-heavy"></i>
+                        <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-lg text-white tracking-wide">Padang</h3>
-                        <p class="text-xs text-nothing-muted">Gerimis / Light Rain</p>
+                        <h3 id="location-name" class="font-bold text-lg text-white tracking-wide">Mendeteksi...</h3>
+                        <p id="location-sub" class="text-xs text-nothing-muted">Mencari Koordinat GPS...</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <span class="font-dot text-3xl font-bold text-white">24°C</span>
-                    <p class="text-[10px] text-nothing-muted mt-1"><i class="fa-solid fa-droplet text-blue-400"></i> 88% Humidity</p>
+                    <span class="font-dot text-3xl font-bold text-white">28°C</span>
+                    <p class="text-[10px] text-nothing-muted mt-1"><i class="fa-solid fa-droplet text-blue-400"></i> GPS Active</p>
                 </div>
             </div>
 
@@ -168,35 +169,32 @@
                     <div class="flex justify-between items-center px-1 mb-1">
                         <div class="flex items-center gap-1.5">
                             <i class="fa-solid fa-mosque text-nothing-red text-xs"></i>
-                            <h3 class="font-bold text-[11px] tracking-wider uppercase text-white">Jadwal Salat</h3>
+                            <h3 class="font-bold text-[11px] tracking-wider uppercase text-white">Jadwal Salat (Lokasi GPS)</h3>
                         </div>
-                        <span class="text-[8px] font-mono text-nothing-muted uppercase">Padang</span>
+                        <span id="prayer-zone" class="text-[8px] font-mono text-nothing-muted uppercase">MEMUAT...</span>
                     </div>
 
                     <!-- Horizontal Prayer List Grid -->
                     <div class="grid grid-cols-5 gap-1.5 font-mono text-[9px]">
-                        <div class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5">
+                        <div id="card-fajr" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
                             <span class="text-nothing-muted text-[8px]">SUBUH</span>
-                            <span class="font-dot text-xs text-white mt-0.5">04:48</span>
+                            <span id="time-fajr" class="font-dot text-xs text-white mt-0.5">--:--</span>
                         </div>
-                        <div class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5">
+                        <div id="card-dhuhr" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
                             <span class="text-nothing-muted text-[8px]">DZUHUR</span>
-                            <span class="font-dot text-xs text-white mt-0.5">12:09</span>
+                            <span id="time-dhuhr" class="font-dot text-xs text-white mt-0.5">--:--</span>
                         </div>
-                        <!-- ACTIVE PRAYER -->
-                        <div class="flex flex-col items-center p-1.5 rounded-xl bg-nothing-red/20 border border-nothing-red shadow-[0_0_8px_rgba(215,25,33,0.3)]">
-                            <span class="text-white font-bold text-[8px] flex items-center gap-1">
-                                <i class="fa-solid fa-volume-high text-nothing-red text-[7px] animate-pulse"></i> ASHAR
-                            </span>
-                            <span class="font-dot text-xs font-bold text-nothing-red mt-0.5">15:24</span>
+                        <div id="card-asr" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
+                            <span class="text-nothing-muted text-[8px]">ASHAR</span>
+                            <span id="time-asr" class="font-dot text-xs text-white mt-0.5">--:--</span>
                         </div>
-                        <div class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5">
-                            <span class="text-nothing-muted text-[8px]">MAGHRIB</span>
-                            <span class="font-dot text-xs text-white mt-0.5">18:13</span>
+                        <div id="card-maghrib" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
+                            <span id="label-maghrib" class="text-nothing-muted text-[8px]">MAGHRIB</span>
+                            <span id="time-maghrib" class="font-dot text-xs text-white mt-0.5">--:--</span>
                         </div>
-                        <div class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5">
+                        <div id="card-isha" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
                             <span class="text-nothing-muted text-[8px]">ISYA</span>
-                            <span class="font-dot text-xs text-white mt-0.5">19:23</span>
+                            <span id="time-isha" class="font-dot text-xs text-white mt-0.5">--:--</span>
                         </div>
                     </div>
                 </div>
@@ -214,7 +212,7 @@
                             <span class="text-[8px] font-mono text-nothing-muted flex items-center gap-1">
                                 <i class="fa-regular fa-clock text-nothing-red"></i> LAMA BERKENDARA
                             </span>
-                            <span id="trip-duration" class="font-dot text-base font-bold text-white tracking-widest mt-0.5">01:45:20</span>
+                            <span id="trip-duration" class="font-dot text-base font-bold text-white tracking-widest mt-0.5">00:00:00</span>
                         </div>
 
                         <!-- JARAK TEMPUH -->
@@ -223,7 +221,7 @@
                                 <i class="fa-solid fa-location-dot text-white"></i> JARAK TEMPUH
                             </span>
                             <div class="flex items-baseline gap-1 mt-0.5">
-                                <span id="trip-distance" class="font-dot text-base font-bold text-white">42.8</span>
+                                <span id="trip-distance" class="font-dot text-base font-bold text-white">0.0</span>
                                 <span class="text-[9px] font-mono font-bold text-nothing-red">KM</span>
                             </div>
                         </div>
@@ -240,7 +238,7 @@
 
             <!-- MAP OVERLAY CONTROLS -->
             <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                <button onclick="centerMap()" class="w-10 h-10 rounded-2xl bg-black/70 border border-white/20 text-white flex items-center justify-center hover:border-nothing-red transition-all shadow-lg active:scale-95">
+                <button onclick="centerMap()" class="w-10 h-10 rounded-2xl bg-black/70 border border-white/20 text-white flex items-center justify-center hover:border-nothing-red transition-all shadow-lg active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-crosshairs text-nothing-red"></i>
                 </button>
             </div>
@@ -248,17 +246,17 @@
 
     </main>
 
-    <!-- BOTTOM CONTROL BAR -->
+    <!-- BOTTOM CONTROL BAR WITH FUNCTIONAL BUTTONS -->
     <footer class="h-16 w-full glass-card rounded-3xl px-6 flex items-center justify-center z-20">
         <div class="flex items-center justify-center gap-3 sm:gap-4 font-mono text-xs">
-            <button class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+            <button onclick="openAndroidSettings()" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
                 <i class="fa-solid fa-sliders text-nothing-red"></i>
                 <span class="tracking-wider text-white">KONTROL</span>
             </button>
 
-            <button class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+            <button onclick="openMediaApp()" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
                 <i class="fa-solid fa-music text-nothing-muted"></i>
-                <span class="tracking-wider text-nothing-muted hover:text-white">MEDIA</span>
+                <span class="tracking-wider text-white">MEDIA</span>
             </button>
 
             <button onclick="toggleAppDrawer()" class="flex items-center gap-2.5 bg-nothing-red/20 text-white border border-nothing-red hover:bg-nothing-red transition-all px-6 py-2 rounded-2xl font-bold shadow-[0_0_15px_rgba(215,25,33,0.35)] active:scale-95 cursor-pointer">
@@ -266,9 +264,14 @@
                 <span class="font-dot text-xs tracking-widest text-white">MENU</span>
             </button>
 
-            <button class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+            <button onclick="centerMap()" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
                 <i class="fa-solid fa-compass text-nothing-red"></i>
                 <span class="tracking-wider text-nothing-red font-semibold">NAVIGASI</span>
+            </button>
+
+            <button onclick="openNativeLauncher()" title="Kembali ke Launcher Bawaan" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+                <i class="fa-solid fa-table-cells text-white"></i>
+                <span class="tracking-wider text-white font-semibold">HOME ASLI</span>
             </button>
 
             <button onclick="toggleFullscreen()" title="Layar Penuh" class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:border-nothing-red transition-all cursor-pointer active:scale-95">
@@ -290,60 +293,32 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 my-auto max-w-4xl mx-auto w-full overflow-y-auto max-h-[70vh] p-2">
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-map-location-dot"></i>
+            <button onclick="openNativeLauncher(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer border-2 border-nothing-red/50">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-nothing-red/20 group-hover:bg-nothing-red border border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white">
+                    <i class="fa-solid fa-house-laptop"></i>
                 </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Navigasi</span>
+                <span class="font-mono text-xs text-white uppercase tracking-wider font-bold">Launcher Asli</span>
             </button>
 
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
+            <button onclick="openAndroidSettings(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+                <span class="font-mono text-xs text-white uppercase tracking-wider">Pengaturan</span>
+            </button>
+
+            <button onclick="openMediaApp(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
                 <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
                     <i class="fa-solid fa-compact-disc"></i>
                 </div>
                 <span class="font-mono text-xs text-white uppercase tracking-wider">Musik</span>
             </button>
 
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
+            <button onclick="centerMap(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
                 <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-cloud-sun"></i>
+                    <i class="fa-solid fa-map-location-dot"></i>
                 </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Cuaca</span>
-            </button>
-
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-car-rear"></i>
-                </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Mobil</span>
-            </button>
-
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-video"></i>
-                </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Kamera 360</span>
-            </button>
-
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-phone"></i>
-                </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Telepon</span>
-            </button>
-
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-calendar-days"></i>
-                </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Jadwal Salat</span>
-            </button>
-
-            <button onclick="toggleAppDrawer()" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-microchip"></i>
-                </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Diagnostik</span>
+                <span class="font-mono text-xs text-white uppercase tracking-wider">Navigasi Peta</span>
             </button>
         </div>
 
@@ -371,51 +346,218 @@
                 const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
                 dateEl.innerText = now.toLocaleDateString('en-US', options).toUpperCase();
             }
+
+            // Update highlight jadwal salat per menit
+            if (seconds === "00") {
+                highlightUpcomingPrayer();
+            }
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- DRIVE METRICS TIMER LOGIC ---
-        let driveSeconds = 6320;
-        let tripDist = 42.8;
+        // --- REAL-TIME DRIVE METRICS & GEOLOCATION LOGIC ---
+        let driveSeconds = 0;
+        let isDriving = false;
+        let tripDist = 0.0;
+        let lastPosition = null;
+        let currentCoords = [-6.2088, 106.8456]; // Fallback Jakarta
+        let map, carMarker;
+        let lastFetchPrayerLat = null;
+        let lastFetchPrayerLon = null;
+        let prayerTimesData = null;
 
+        // Drive duration timer
         setInterval(() => {
-            driveSeconds++;
-            const hrs = String(Math.floor(driveSeconds / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((driveSeconds % 3600) / 60)).padStart(2, '0');
-            const secs = String(driveSeconds % 60).padStart(2, '0');
-            
-            const durEl = document.getElementById('trip-duration');
-            if (durEl) {
-                durEl.innerText = `${hrs}:${mins}:${secs}`;
-            }
-            
-            tripDist += 0.01;
-            const distEl = document.getElementById('trip-distance');
-            if (distEl) {
-                distEl.innerText = tripDist.toFixed(1);
+            if (isDriving) {
+                driveSeconds++;
+                const hrs = String(Math.floor(driveSeconds / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((driveSeconds % 3600) / 60)).padStart(2, '0');
+                const secs = String(driveSeconds % 60).padStart(2, '0');
+                
+                const durEl = document.getElementById('trip-duration');
+                if (durEl) {
+                    durEl.innerText = `${hrs}:${mins}:${secs}`;
+                }
             }
         }, 1000);
 
-        // Simulated speed dynamics
-        let speed = 45;
-        setInterval(() => {
-            speed = Math.floor(Math.random() * 5) + 42;
-            const speedEl = document.getElementById('current-speed');
-            if (speedEl) {
-                speedEl.innerText = speed;
+        // Haversine formula untuk menghitung jarak akurat (KM)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius bumi dalam KM
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // --- PRAYER TIMES & REVERSE GEOCODING API LOGIC ---
+        async function fetchLocationAndPrayerTimes(lat, lon) {
+            // Reverse Geocoding via Nominatim
+            try {
+                const geoResp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const geoData = await geoResp.json();
+                if (geoData && geoData.address) {
+                    const city = geoData.address.city || geoData.address.town || geoData.address.suburb || geoData.address.county || "Lokasi Anda";
+                    const state = geoData.address.state || geoData.address.country || "";
+                    document.getElementById('location-name').innerText = city;
+                    document.getElementById('location-sub').innerText = state;
+                }
+            } catch(e) {
+                console.warn("Gagal mengambil nama lokasi:", e);
             }
-        }, 3000);
+
+            // Fetch Jadwal Salat dari Aladhan API
+            try {
+                const prayerResp = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=20`); // Method 20: Kemenag Indonesia / Muslim World League
+                const prayerData = await prayerResp.json();
+                if (prayerData && prayerData.data && prayerData.data.timings) {
+                    prayerTimesData = prayerData.data.timings;
+                    
+                    document.getElementById('time-fajr').innerText = prayerTimesData.Fajr;
+                    document.getElementById('time-dhuhr').innerText = prayerTimesData.Dhuhr;
+                    document.getElementById('time-asr').innerText = prayerTimesData.Asr;
+                    document.getElementById('time-maghrib').innerText = prayerTimesData.Maghrib;
+                    document.getElementById('time-isha').innerText = prayerTimesData.Isha;
+
+                    const timeZone = prayerData.data.meta.timezone || "LOKAL";
+                    document.getElementById('prayer-zone').innerText = timeZone.split('/')[1] || timeZone;
+
+                    highlightUpcomingPrayer();
+                }
+            } catch(e) {
+                console.warn("Gagal mengambil jadwal sholat:", e);
+            }
+        }
+
+        function highlightUpcomingPrayer() {
+            if (!prayerTimesData) return;
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            const prayers = [
+                { id: 'fajr', time: prayerTimesData.Fajr },
+                { id: 'dhuhr', time: prayerTimesData.Dhuhr },
+                { id: 'asr', time: prayerTimesData.Asr },
+                { id: 'maghrib', time: prayerTimesData.Maghrib },
+                { id: 'isha', time: prayerTimesData.Isha }
+            ];
+
+            let activeId = 'fajr';
+            for (let i = 0; i < prayers.length; i++) {
+                const [h, m] = prayers[i].time.split(':').map(Number);
+                const pMin = h * 60 + m;
+                if (currentMinutes >= pMin) {
+                    activeId = prayers[i].id;
+                }
+            }
+
+            // Reset Styles
+            ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(id => {
+                const card = document.getElementById(`card-${id}`);
+                if (card) {
+                    card.className = "flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all";
+                }
+            });
+
+            // Highlight Active Prayer Card
+            const activeCard = document.getElementById(`card-${activeId}`);
+            if (activeCard) {
+                activeCard.className = "flex flex-col items-center p-1.5 rounded-xl bg-nothing-red/20 border border-nothing-red shadow-[0_0_8px_rgba(215,25,33,0.3)] transition-all";
+            }
+        }
+
+        // --- REAL GEOLOCATION WATCH ---
+        function initGeolocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        currentCoords = [lat, lon];
+
+                        // Tarik data jadwal sholat & lokasi jika berpindah tempat > 5 KM atau saat awal pemuatan
+                        if (!lastFetchPrayerLat || calculateDistance(lastFetchPrayerLat, lastFetchPrayerLon, lat, lon) > 5) {
+                            lastFetchPrayerLat = lat;
+                            lastFetchPrayerLon = lon;
+                            fetchLocationAndPrayerTimes(lat, lon);
+                        }
+
+                        // Dapatkan Kecepatan Real dari GPS (m/s ke km/h)
+                        let speedKmH = 0;
+                        if (position.coords.speed !== null && position.coords.speed !== undefined) {
+                            speedKmH = Math.round(position.coords.speed * 3.6);
+                        } else if (lastPosition) {
+                            const dist = calculateDistance(lastPosition.lat, lastPosition.lon, lat, lon);
+                            const timeDiffSec = (position.timestamp - lastPosition.timestamp) / 1000;
+                            if (timeDiffSec > 0) {
+                                speedKmH = Math.round((dist / timeDiffSec) * 3600);
+                            }
+                        }
+
+                        // Update tampilan kecepatan
+                        const speedEl = document.getElementById('current-speed');
+                        if (speedEl) {
+                            speedEl.innerText = speedKmH > 0 ? speedKmH : 0;
+                        }
+
+                        // Update Jarak Tempuh jika bergerak (>3 km/h)
+                        if (speedKmH > 3) {
+                            isDriving = true;
+                            if (lastPosition) {
+                                const deltaDist = calculateDistance(lastPosition.lat, lastPosition.lon, lat, lon);
+                                if (deltaDist > 0.005) { // filter drift > 5 meter
+                                    tripDist += deltaDist;
+                                    const distEl = document.getElementById('trip-distance');
+                                    if (distEl) {
+                                        distEl.innerText = tripDist.toFixed(1);
+                                    }
+                                }
+                            }
+                        } else {
+                            isDriving = false;
+                        }
+
+                        // Update Peta & Posisi Marker
+                        if (map && carMarker) {
+                            carMarker.setLatLng(currentCoords);
+                            map.panTo(currentCoords);
+                        }
+
+                        // Status GPS Connected
+                        const gpsText = document.getElementById('gps-text');
+                        if (gpsText) gpsText.innerText = 'GPS AKTIF';
+
+                        lastPosition = { lat, lon, timestamp: position.timestamp };
+                    },
+                    (error) => {
+                        console.warn("GPS Access Error/Denied:", error);
+                        const gpsText = document.getElementById('gps-text');
+                        if (gpsText) gpsText.innerText = 'GPS DISCONNECTED';
+
+                        // Default fallback fetch
+                        fetchLocationAndPrayerTimes(currentCoords[0], currentCoords[1]);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 1000,
+                        timeout: 10000
+                    }
+                );
+            } else {
+                fetchLocationAndPrayerTimes(currentCoords[0], currentCoords[1]);
+            }
+        }
 
         // --- LEAFLET MAP INITIALIZATION ---
-        const padangCoords = [-0.9471, 100.4172];
-        let map;
-
         window.onload = function() {
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false
-            }).setView(padangCoords, 14);
+            }).setView(currentCoords, 15);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19
@@ -428,22 +570,51 @@
                 iconAnchor: [12, 12]
             });
 
-            L.marker(padangCoords, { icon: carIcon }).addTo(map);
+            carMarker = L.marker(currentCoords, { icon: carIcon }).addTo(map);
+
+            // Inisialisasi pelacakan GPS riil & jadwal salat
+            initGeolocation();
         };
 
         function centerMap() {
             if (map) {
-                map.flyTo(padangCoords, 14, { animate: true, duration: 1 });
+                map.flyTo(currentCoords, 16, { animate: true, duration: 1 });
             }
         }
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
+                document.documentElement.requestFullscreen().catch(() => {});
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 }
+            }
+        }
+
+        // --- ACTION HANDLERS & NATIVE LAUNCHER SWITCHING ---
+        function openNativeLauncher() {
+            // Membuka Home / Launcher Bawaan Android via Intent Scheme / Go Home
+            try {
+                window.location.href = "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end";
+            } catch(e) {
+                console.log("Navigating to home screen...");
+            }
+        }
+
+        function openAndroidSettings() {
+            try {
+                window.location.href = "intent:#Intent;action=android.settings.SETTINGS;end";
+            } catch(e) {
+                alert("Membuka Pengaturan Sistem...");
+            }
+        }
+
+        function openMediaApp() {
+            try {
+                window.location.href = "intent:#Intent;action=android.intent.action.MUSIC_PLAYER;end";
+            } catch(e) {
+                alert("Membuka Pemutar Musik...");
             }
         }
 
