@@ -2,7 +2,7 @@
 <html lang="id" class="dark h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nothing OS Car Head Unit</title>
 
     <!-- Tailwind CSS CDN -->
@@ -18,15 +18,15 @@
                         nothing: {
                             black: '#0a0a0a',
                             dark: '#121212',
-                            card: 'rgba(26, 26, 26, 0.75)',
-                            border: 'rgba(255, 255, 255, 0.12)',
+                            card: '#161616',
+                            border: '#2a2a2a',
                             red: '#D71921',
                             muted: '#8e8e93',
                             light: '#e5e5e5'
                         }
                     },
                     fontFamily: {
-                        dot: ['"Silkscreen"', 'cursive', 'monospace'],
+                        dot: ['"Silkscreen"', 'monospace'],
                         sans: ['"Space Grotesk"', 'sans-serif']
                     }
                 }
@@ -46,183 +46,189 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Inline Fallback & Core Styles -->
+    <!-- Inline Optimized Styles (Low GPU Usage) -->
     <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             background-color: #0a0a0a !important;
             color: #ffffff !important;
             font-family: 'Space Grotesk', sans-serif !important;
             overflow: hidden;
+            touch-action: manipulation;
         }
 
         .font-dot {
-            font-family: 'Silkscreen', cursive, monospace !important;
+            font-family: 'Silkscreen', monospace !important;
         }
 
+        /* Solid-style card optimized for low-end Head Unit GPUs */
         .glass-card {
-            background: rgba(26, 26, 26, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            background-color: #141414;
+            border: 1px solid #282828;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
         .dot-matrix-pattern {
-            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 16px 16px;
         }
 
-        /* Leaflet Dark Theme Overrides */
+        /* Leaflet Map Overrides */
         .leaflet-container {
             background-color: #0f0f11 !important;
             font-family: 'Space Grotesk', sans-serif !important;
         }
         .leaflet-tile {
-            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+            filter: brightness(0.65) invert(1) contrast(2.5) hue-rotate(200deg) saturate(0.2);
         }
 
-        /* Pulse Animation */
+        /* Hardware Accelerated Red Pulse */
         @keyframes pulse-red {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
         .animate-pulse-red {
-            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation: pulse-red 2s infinite ease-in-out;
+            will-change: opacity;
         }
     </style>
 </head>
-<body class="h-screen w-screen bg-nothing-black text-white p-4 select-none dot-matrix-pattern flex flex-col justify-between overflow-hidden">
+<body class="h-screen w-screen bg-nothing-black text-white p-3 select-none dot-matrix-pattern flex flex-col justify-between overflow-hidden">
 
     <!-- TOP BAR / HEADER -->
-    <header class="h-16 w-full glass-card rounded-3xl px-6 flex items-center justify-between z-20">
+    <header class="h-14 w-full glass-card rounded-2xl px-5 flex items-center justify-between z-20 flex-shrink-0">
         <!-- LEFT: LOGO & STATUS -->
         <div class="flex items-center gap-3">
-            <div class="w-3 h-3 rounded-full bg-nothing-red animate-pulse-red shadow-[0_0_10px_#D71921]"></div>
-            <span class="font-dot text-sm font-bold tracking-widest text-white uppercase">NOTHING (R) OS // AUTO</span>
+            <div class="w-2.5 h-2.5 rounded-full bg-nothing-red animate-pulse-red"></div>
+            <span class="font-dot text-xs font-bold tracking-widest text-white uppercase">NOTHING (R) OS // AUTO</span>
         </div>
 
         <!-- CENTER: DIGITAL CLOCK -->
         <div class="flex flex-col items-center">
-            <h1 id="digital-clock" class="font-dot text-2xl font-bold tracking-wider text-white">00:00:00</h1>
-            <span id="current-date" class="text-[10px] text-nothing-muted font-mono tracking-widest uppercase">MON, 27 OCT 2026</span>
+            <h1 id="digital-clock" class="font-dot text-xl font-bold tracking-wider text-white">00:00:00</h1>
+            <span id="current-date" class="text-[9px] text-nothing-muted font-mono tracking-widest uppercase">MON, 27 OCT 2026</span>
         </div>
 
         <!-- RIGHT: VEHICLE STATUS & LAUNCHER SWITCHER -->
         <div class="flex items-center gap-3 font-mono">
-            <div id="gps-status" class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                <i class="fa-solid fa-location-arrow text-nothing-red text-xs"></i>
-                <span id="gps-text" class="text-white text-[10px]">MENCARI GPS...</span>
+            <div id="gps-status" class="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                <i class="fa-solid fa-location-arrow text-nothing-red text-[10px]"></i>
+                <span id="gps-text" class="text-white text-[10px]">MENUNGGU GPS...</span>
             </div>
-            <!-- BUTTON UNTUK KEMBALI KE LAUNCHER BAWAAN -->
-            <button onclick="openNativeLauncher()" title="Kembali ke Launcher Bawaan Android" class="flex items-center gap-2 bg-nothing-red/20 hover:bg-nothing-red text-white px-3 py-1.5 rounded-full border border-nothing-red transition-all active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-house text-xs"></i>
+            
+            <button onclick="openNativeLauncher()" title="Kembali ke Launcher Bawaan Android" class="flex items-center gap-2 bg-nothing-red/20 hover:bg-nothing-red text-white px-3 py-1 rounded-full border border-nothing-red transition-all active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-house text-[10px]"></i>
                 <span class="text-[10px] font-bold tracking-wider">LAUNCHER ASLI</span>
             </button>
         </div>
     </header>
 
     <!-- MAIN CONTENT AREA (2 COLUMNS) -->
-    <main class="flex-1 my-4 grid grid-cols-12 gap-4 h-[calc(100%-6rem)]">
+    <main class="flex-1 my-3 grid grid-cols-12 gap-3 h-[calc(100%-7.5rem)] overflow-hidden">
         
         <!-- LEFT COLUMN: INSTRUMENT & WIDGET PANEL (5 COLS) -->
-        <div class="col-span-5 flex flex-col gap-4 h-full">
+        <div class="col-span-5 flex flex-col gap-3 h-full overflow-hidden">
             
             <!-- SPEEDOMETER WIDGET -->
-            <div class="glass-card rounded-3xl p-6 flex items-center justify-between relative overflow-hidden">
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex flex-col">
-                    <span class="text-xs font-mono text-nothing-muted uppercase tracking-widest">Kecepatan Real-time</span>
-                    <div class="flex items-baseline gap-2 mt-1">
-                        <span id="current-speed" class="font-dot text-6xl font-bold text-white tracking-tighter">0</span>
-                        <span class="text-sm font-mono font-bold text-nothing-red">KM/H</span>
+                    <span class="text-[10px] font-mono text-nothing-muted uppercase tracking-widest">Kecepatan GPS</span>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span id="current-speed" class="font-dot text-5xl font-bold text-white tracking-tighter">0</span>
+                        <span class="text-xs font-mono font-bold text-nothing-red">KM/H</span>
                     </div>
                 </div>
 
-                <!-- SPEED LIMIT INDICATOR (UNLIMITED) -->
-                <div class="w-16 h-16 rounded-full border-4 border-nothing-red bg-black/50 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(215,25,33,0.4)]">
-                    <span class="text-[9px] text-nothing-muted font-mono font-bold leading-none">LIMIT</span>
-                    <span class="font-dot text-2xl font-bold text-white leading-none mt-1">∞</span>
+                <!-- UNLIMITED SPEED LIMIT INDICATOR -->
+                <div class="w-14 h-14 rounded-full border-2 border-nothing-red bg-black/60 flex flex-col items-center justify-center">
+                    <span class="text-[8px] text-nothing-muted font-mono font-bold leading-none">LIMIT</span>
+                    <span class="font-dot text-xl font-bold text-white leading-none mt-1">∞</span>
                 </div>
             </div>
 
             <!-- WEATHER WIDGET -->
-            <div class="glass-card rounded-3xl p-5 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl text-nothing-red">
-                        <i class="fa-solid fa-location-dot"></i>
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl text-nothing-red">
+                        <i id="weather-icon" class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                        <h3 id="location-name" class="font-bold text-lg text-white tracking-wide">Mendeteksi...</h3>
-                        <p id="location-sub" class="text-xs text-nothing-muted">Mencari Koordinat GPS...</p>
+                        <h3 id="location-name" class="font-bold text-base text-white tracking-wide truncate max-w-[140px]">Mendeteksi...</h3>
+                        <p id="location-sub" class="text-[10px] text-nothing-muted truncate max-w-[140px]">Mencari Koordinat GPS...</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <span class="font-dot text-3xl font-bold text-white">28°C</span>
-                    <p class="text-[10px] text-nothing-muted mt-1"><i class="fa-solid fa-droplet text-blue-400"></i> GPS Active</p>
+                    <span id="weather-temp" class="font-dot text-2xl font-bold text-white">--°C</span>
+                    <p id="weather-desc" class="text-[9px] text-nothing-muted mt-0.5"><i class="fa-solid fa-droplet text-blue-400"></i> Memuat...</p>
                 </div>
             </div>
 
             <!-- HORIZONTAL SECTION: JADWAL SALAT & STATISTIK PERJALANAN -->
-            <div class="flex flex-col gap-3 flex-1 overflow-hidden">
+            <div class="flex flex-col gap-3 flex-1 overflow-hidden justify-between">
                 
                 <!-- CARD 1: JADWAL SALAT HORIZONTAL -->
-                <div class="glass-card rounded-3xl p-3 flex-1 flex flex-col justify-between">
+                <div class="glass-card rounded-2xl p-3 flex flex-col justify-between flex-1">
                     <div class="flex justify-between items-center px-1 mb-1">
                         <div class="flex items-center gap-1.5">
                             <i class="fa-solid fa-mosque text-nothing-red text-xs"></i>
-                            <h3 class="font-bold text-[11px] tracking-wider uppercase text-white">Jadwal Salat (Lokasi GPS)</h3>
+                            <h3 class="font-bold text-[10px] tracking-wider uppercase text-white">Jadwal Salat</h3>
                         </div>
-                        <span id="prayer-zone" class="text-[8px] font-mono text-nothing-muted uppercase">MEMUAT...</span>
+                        <span id="prayer-zone" class="text-[8px] font-mono text-nothing-muted uppercase">GPS...</span>
                     </div>
 
                     <!-- Horizontal Prayer List Grid -->
-                    <div class="grid grid-cols-5 gap-1.5 font-mono text-[9px]">
-                        <div id="card-fajr" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
-                            <span class="text-nothing-muted text-[8px]">SUBUH</span>
-                            <span id="time-fajr" class="font-dot text-xs text-white mt-0.5">--:--</span>
+                    <div class="grid grid-cols-5 gap-1 font-mono text-[9px]">
+                        <div id="card-fajr" class="flex flex-col items-center p-1 rounded-lg bg-white/5 border border-white/5">
+                            <span class="text-nothing-muted text-[7px]">SUBUH</span>
+                            <span id="time-fajr" class="font-dot text-[10px] text-white mt-0.5">--:--</span>
                         </div>
-                        <div id="card-dhuhr" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
-                            <span class="text-nothing-muted text-[8px]">DZUHUR</span>
-                            <span id="time-dhuhr" class="font-dot text-xs text-white mt-0.5">--:--</span>
+                        <div id="card-dhuhr" class="flex flex-col items-center p-1 rounded-lg bg-white/5 border border-white/5">
+                            <span class="text-nothing-muted text-[7px]">DZUHUR</span>
+                            <span id="time-dhuhr" class="font-dot text-[10px] text-white mt-0.5">--:--</span>
                         </div>
-                        <div id="card-asr" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
-                            <span class="text-nothing-muted text-[8px]">ASHAR</span>
-                            <span id="time-asr" class="font-dot text-xs text-white mt-0.5">--:--</span>
+                        <div id="card-asr" class="flex flex-col items-center p-1 rounded-lg bg-white/5 border border-white/5">
+                            <span class="text-nothing-muted text-[7px]">ASHAR</span>
+                            <span id="time-asr" class="font-dot text-[10px] text-white mt-0.5">--:--</span>
                         </div>
-                        <div id="card-maghrib" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
-                            <span id="label-maghrib" class="text-nothing-muted text-[8px]">MAGHRIB</span>
-                            <span id="time-maghrib" class="font-dot text-xs text-white mt-0.5">--:--</span>
+                        <div id="card-maghrib" class="flex flex-col items-center p-1 rounded-lg bg-white/5 border border-white/5">
+                            <span id="label-maghrib" class="text-nothing-muted text-[7px]">MAGHRIB</span>
+                            <span id="time-maghrib" class="font-dot text-[10px] text-white mt-0.5">--:--</span>
                         </div>
-                        <div id="card-isha" class="flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all">
-                            <span class="text-nothing-muted text-[8px]">ISYA</span>
-                            <span id="time-isha" class="font-dot text-xs text-white mt-0.5">--:--</span>
+                        <div id="card-isha" class="flex flex-col items-center p-1 rounded-lg bg-white/5 border border-white/5">
+                            <span class="text-nothing-muted text-[7px]">ISYA</span>
+                            <span id="time-isha" class="font-dot text-[10px] text-white mt-0.5">--:--</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- CARD 2: STATISTIK PERJALANAN HORIZONTAL -->
-                <div class="glass-card rounded-3xl p-3 flex-1 flex flex-col justify-between border-b-2 border-b-nothing-red">
+                <div class="glass-card rounded-2xl p-3 flex flex-col justify-between flex-1 border-b-2 border-b-nothing-red">
                     <div class="flex items-center gap-1.5 px-1 mb-1">
                         <i class="fa-solid fa-route text-nothing-red text-xs"></i>
-                        <h3 class="font-bold text-[11px] tracking-wider uppercase text-white">Statistik Perjalanan</h3>
+                        <h3 class="font-bold text-[10px] tracking-wider uppercase text-white">Statistik Perjalanan</h3>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <!-- LAMA BERKENDARA -->
-                        <div class="bg-white/5 p-2 rounded-xl border border-white/5 flex flex-col justify-center items-center">
+                        <div class="bg-white/5 p-1.5 rounded-lg border border-white/5 flex flex-col justify-center items-center">
                             <span class="text-[8px] font-mono text-nothing-muted flex items-center gap-1">
                                 <i class="fa-regular fa-clock text-nothing-red"></i> LAMA BERKENDARA
                             </span>
-                            <span id="trip-duration" class="font-dot text-base font-bold text-white tracking-widest mt-0.5">00:00:00</span>
+                            <span id="trip-duration" class="font-dot text-sm font-bold text-white tracking-widest mt-0.5">00:00:00</span>
                         </div>
 
                         <!-- JARAK TEMPUH -->
-                        <div class="bg-white/5 p-2 rounded-xl border border-white/5 flex flex-col justify-center items-center">
+                        <div class="bg-white/5 p-1.5 rounded-lg border border-white/5 flex flex-col justify-center items-center">
                             <span class="text-[8px] font-mono text-nothing-muted flex items-center gap-1">
                                 <i class="fa-solid fa-location-dot text-white"></i> JARAK TEMPUH
                             </span>
                             <div class="flex items-baseline gap-1 mt-0.5">
-                                <span id="trip-distance" class="font-dot text-base font-bold text-white">0.0</span>
-                                <span class="text-[9px] font-mono font-bold text-nothing-red">KM</span>
+                                <span id="trip-distance" class="font-dot text-sm font-bold text-white">0.0</span>
+                                <span class="text-[8px] font-mono font-bold text-nothing-red">KM</span>
                             </div>
                         </div>
                     </div>
@@ -233,169 +239,169 @@
         </div>
 
         <!-- RIGHT COLUMN: MAP CONTAINER (7 COLS) -->
-        <div class="col-span-7 glass-card rounded-3xl overflow-hidden relative border border-white/10 flex flex-col">
+        <div class="col-span-7 glass-card rounded-2xl overflow-hidden relative flex flex-col h-full">
             <div id="map" class="w-full h-full z-10"></div>
 
             <!-- MAP OVERLAY CONTROLS -->
-            <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                <button onclick="centerMap()" class="w-10 h-10 rounded-2xl bg-black/70 border border-white/20 text-white flex items-center justify-center hover:border-nothing-red transition-all shadow-lg active:scale-95 cursor-pointer">
-                    <i class="fa-solid fa-crosshairs text-nothing-red"></i>
+            <div class="absolute top-3 right-3 z-20 flex flex-col gap-2">
+                <button onclick="centerMap()" class="w-9 h-9 rounded-xl bg-black/80 border border-white/20 text-white flex items-center justify-center hover:border-nothing-red transition-all active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-crosshairs text-nothing-red text-xs"></i>
                 </button>
             </div>
         </div>
 
     </main>
 
-    <!-- BOTTOM CONTROL BAR WITH FUNCTIONAL BUTTONS -->
-    <footer class="h-16 w-full glass-card rounded-3xl px-6 flex items-center justify-center z-20">
-        <div class="flex items-center justify-center gap-3 sm:gap-4 font-mono text-xs">
-            <button onclick="openAndroidSettings()" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
-                <i class="fa-solid fa-sliders text-nothing-red"></i>
-                <span class="tracking-wider text-white">KONTROL</span>
+    <!-- BOTTOM CONTROL BAR (CENTER ALIGNED & CLEANED) -->
+    <footer class="h-14 w-full glass-card rounded-2xl px-4 flex items-center justify-center z-20 flex-shrink-0">
+        <div class="flex items-center justify-center gap-2 sm:gap-3 font-mono text-xs">
+            <button onclick="openAndroidSettings()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+                <i class="fa-solid fa-sliders text-nothing-red text-xs"></i>
+                <span class="tracking-wider text-white text-[11px]">KONTROL</span>
             </button>
 
-            <button onclick="openMediaApp()" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
-                <i class="fa-solid fa-music text-nothing-muted"></i>
-                <span class="tracking-wider text-white">MEDIA</span>
+            <button onclick="openMediaApp()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+                <i class="fa-solid fa-music text-nothing-muted text-xs"></i>
+                <span class="tracking-wider text-white text-[11px]">MEDIA</span>
             </button>
 
-            <button onclick="toggleAppDrawer()" class="flex items-center gap-2.5 bg-nothing-red/20 text-white border border-nothing-red hover:bg-nothing-red transition-all px-6 py-2 rounded-2xl font-bold shadow-[0_0_15px_rgba(215,25,33,0.35)] active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-shapes text-nothing-red text-sm"></i>
+            <button onclick="toggleAppDrawer()" class="flex items-center gap-2 bg-nothing-red/20 text-white border border-nothing-red hover:bg-nothing-red transition-all px-5 py-1.5 rounded-xl font-bold active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-shapes text-nothing-red text-xs"></i>
                 <span class="font-dot text-xs tracking-widest text-white">MENU</span>
             </button>
 
-            <button onclick="centerMap()" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
-                <i class="fa-solid fa-compass text-nothing-red"></i>
-                <span class="tracking-wider text-nothing-red font-semibold">NAVIGASI</span>
+            <button onclick="centerMap()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+                <i class="fa-solid fa-compass text-nothing-red text-xs"></i>
+                <span class="tracking-wider text-nothing-red text-[11px] font-semibold">NAVIGASI</span>
             </button>
 
-            <button onclick="openNativeLauncher()" title="Kembali ke Launcher Bawaan" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
-                <i class="fa-solid fa-table-cells text-white"></i>
-                <span class="tracking-wider text-white font-semibold">HOME ASLI</span>
+            <button onclick="openNativeLauncher()" title="Kembali ke Launcher Bawaan" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+                <i class="fa-solid fa-table-cells text-white text-xs"></i>
+                <span class="tracking-wider text-white text-[11px] font-semibold">HOME ASLI</span>
             </button>
 
-            <button onclick="toggleFullscreen()" title="Layar Penuh" class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:border-nothing-red transition-all cursor-pointer active:scale-95">
+            <button onclick="toggleFullscreen()" title="Layar Penuh" class="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:border-nothing-red transition-all cursor-pointer active:scale-95">
                 <i class="fa-solid fa-expand text-xs"></i>
             </button>
         </div>
     </footer>
 
     <!-- APP DRAWER / APPLICATION LAUNCHER MODAL -->
-    <div id="app-drawer" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex-col justify-between p-6 sm:p-8 transition-opacity duration-200 opacity-0 pointer-events-none">
-        <div class="flex justify-between items-center border-b border-white/10 pb-4 max-w-5xl mx-auto w-full">
+    <div id="app-drawer" class="fixed inset-0 bg-black/90 z-50 hidden flex-col justify-between p-6 transition-opacity duration-200 opacity-0 pointer-events-none">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3 max-w-4xl mx-auto w-full">
             <div class="flex items-center gap-3">
-                <div class="w-3 h-3 rounded-full bg-nothing-red shadow-[0_0_10px_#D71921]"></div>
-                <h2 class="font-dot text-base sm:text-lg font-bold uppercase tracking-widest text-white">MENU APLIKASI // NOTHING OS</h2>
+                <div class="w-2.5 h-2.5 rounded-full bg-nothing-red"></div>
+                <h2 class="font-dot text-sm font-bold uppercase tracking-widest text-white">MENU APLIKASI // NOTHING OS</h2>
             </div>
-            <button onclick="toggleAppDrawer()" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-nothing-red text-white flex items-center justify-center transition-colors cursor-pointer">
-                <i class="fa-solid fa-xmark text-lg"></i>
+            <button onclick="toggleAppDrawer()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-nothing-red text-white flex items-center justify-center transition-colors cursor-pointer">
+                <i class="fa-solid fa-xmark text-sm"></i>
             </button>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 my-auto max-w-4xl mx-auto w-full overflow-y-auto max-h-[70vh] p-2">
-            <button onclick="openNativeLauncher(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer border-2 border-nothing-red/50">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-nothing-red/20 group-hover:bg-nothing-red border border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white">
+        <div class="grid grid-cols-4 gap-4 my-auto max-w-3xl mx-auto w-full p-2">
+            <button onclick="openNativeLauncher(); toggleAppDrawer();" class="glass-card p-5 rounded-2xl flex flex-col items-center gap-2 hover:border-nothing-red transition-all border border-nothing-red/50 cursor-pointer">
+                <div class="w-12 h-12 rounded-xl bg-nothing-red/20 border border-nothing-red flex items-center justify-center text-xl text-white">
+                    <i class="fa-solid fa-grid-2"></i>
+                </div>
+                <span class="font-mono text-[10px] text-white uppercase tracking-wider font-bold">Semua Aplikasi</span>
+            </button>
+
+            <button onclick="openNativeHome(); toggleAppDrawer();" class="glass-card p-5 rounded-2xl flex flex-col items-center gap-2 hover:border-nothing-red transition-all cursor-pointer">
+                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl text-white">
                     <i class="fa-solid fa-house-laptop"></i>
                 </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider font-bold">Launcher Asli</span>
+                <span class="font-mono text-[10px] text-white uppercase tracking-wider">Home Asli</span>
             </button>
 
-            <button onclick="openAndroidSettings(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
+            <button onclick="openAndroidSettings(); toggleAppDrawer();" class="glass-card p-5 rounded-2xl flex flex-col items-center gap-2 hover:border-nothing-red transition-all cursor-pointer">
+                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl text-white">
                     <i class="fa-solid fa-gear"></i>
                 </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Pengaturan</span>
+                <span class="font-mono text-[10px] text-white uppercase tracking-wider">Pengaturan</span>
             </button>
 
-            <button onclick="openMediaApp(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
+            <button onclick="openMediaApp(); toggleAppDrawer();" class="glass-card p-5 rounded-2xl flex flex-col items-center gap-2 hover:border-nothing-red transition-all cursor-pointer">
+                <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl text-white">
                     <i class="fa-solid fa-compact-disc"></i>
                 </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Musik</span>
-            </button>
-
-            <button onclick="centerMap(); toggleAppDrawer();" class="glass-card p-4 sm:p-6 rounded-3xl flex flex-col items-center gap-3 hover:border-nothing-red hover:scale-105 transition-all group cursor-pointer">
-                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 group-hover:bg-nothing-red/20 border border-white/10 group-hover:border-nothing-red flex items-center justify-center text-2xl sm:text-3xl text-white group-hover:text-nothing-red">
-                    <i class="fa-solid fa-map-location-dot"></i>
-                </div>
-                <span class="font-mono text-xs text-white uppercase tracking-wider">Navigasi Peta</span>
+                <span class="font-mono text-[10px] text-white uppercase tracking-wider">Musik</span>
             </button>
         </div>
 
-        <div class="text-center font-mono text-[10px] text-nothing-muted uppercase">
-            Tekan tombol [X] atau pilih aplikasi untuk kembali ke Dashboard
+        <div class="text-center font-mono text-[9px] text-nothing-muted uppercase">
+            Tekan [X] atau pilih menu untuk kembali
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- STABLE & OPTIMIZED JAVASCRIPT LOGIC -->
     <script>
+        // Global Safe State Variables
+        let driveSeconds = 0;
+        let tripDist = 0.0;
+        let lastPosition = null;
+        let currentCoords = [-6.2088, 106.8456]; // Default Fallback
+        let map = null;
+        let carMarker = null;
+        let lastFetchPrayerLat = null;
+        let lastFetchPrayerLon = null;
+        let prayerTimesData = null;
+        let isFetchingApi = false;
+
         // --- CLOCK & DATE LOGIC ---
         function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            const clockEl = document.getElementById('digital-clock');
-            if (clockEl) {
-                clockEl.innerText = `${hours}:${minutes}:${seconds}`;
-            }
+            try {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                
+                const clockEl = document.getElementById('digital-clock');
+                if (clockEl) clockEl.innerText = `${hours}:${minutes}:${seconds}`;
 
-            const dateEl = document.getElementById('current-date');
-            if (dateEl) {
-                const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-                dateEl.innerText = now.toLocaleDateString('en-US', options).toUpperCase();
-            }
+                const dateEl = document.getElementById('current-date');
+                if (dateEl) {
+                    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                    dateEl.innerText = now.toLocaleDateString('en-US', options).toUpperCase();
+                }
 
-            // Update highlight jadwal salat per menit
-            if (seconds === "00") {
-                highlightUpcomingPrayer();
+                if (seconds === "00") {
+                    highlightUpcomingPrayer();
+                }
+            } catch (e) {
+                console.warn("Clock update error:", e);
             }
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- REAL-TIME DRIVE METRICS & GEOLOCATION LOGIC ---
-        let driveSeconds = 0;
-        let isDriving = false;
-        let tripDist = 0.0;
-        let lastPosition = null;
-        let currentCoords = [-6.2088, 106.8456]; // Fallback Jakarta
-        let map, carMarker;
-        let lastFetchPrayerLat = null;
-        let lastFetchPrayerLon = null;
-        let prayerTimesData = null;
-
-        // Drive duration timer
+        // --- DRIVE TIMER ---
         setInterval(() => {
-            if (isDriving) {
-                driveSeconds++;
-                const hrs = String(Math.floor(driveSeconds / 3600)).padStart(2, '0');
-                const mins = String(Math.floor((driveSeconds % 3600) / 60)).padStart(2, '0');
-                const secs = String(driveSeconds % 60).padStart(2, '0');
-                
-                const durEl = document.getElementById('trip-duration');
-                if (durEl) {
-                    durEl.innerText = `${hrs}:${mins}:${secs}`;
-                }
-            }
+            driveSeconds++;
+            const hrs = String(Math.floor(driveSeconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((driveSeconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(driveSeconds % 60).padStart(2, '0');
+            
+            const durEl = document.getElementById('trip-duration');
+            if (durEl) durEl.innerText = `${hrs}:${mins}:${secs}`;
         }, 1000);
 
-        // Haversine formula untuk menghitung jarak akurat (KM)
+        // --- HAVERSINE DISTANCE CALCULATOR ---
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius bumi dalam KM
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                       Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
-        // --- PRAYER TIMES & REVERSE GEOCODING API LOGIC ---
+        // --- EXTERNAL APIs (LOCATION, WEATHER, PRAYER TIMES) ---
         async function fetchLocationAndPrayerTimes(lat, lon) {
-            // Reverse Geocoding via Nominatim
+            if (isFetchingApi) return;
+            isFetchingApi = true;
+
+            // 1. Reverse Geocoding
             try {
                 const geoResp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
                 const geoData = await geoResp.json();
@@ -406,12 +412,34 @@
                     document.getElementById('location-sub').innerText = state;
                 }
             } catch(e) {
-                console.warn("Gagal mengambil nama lokasi:", e);
+                console.warn("Reverse Geocode Fetch Failed", e);
             }
 
-            // Fetch Jadwal Salat dari Aladhan API
+            // 2. Open-Meteo Weather API
             try {
-                const prayerResp = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=20`); // Method 20: Kemenag Indonesia / Muslim World League
+                const weatherResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const weatherData = await weatherResp.json();
+                if (weatherData && weatherData.current_weather) {
+                    const temp = Math.round(weatherData.current_weather.temperature);
+                    const code = weatherData.current_weather.weathercode;
+                    document.getElementById('weather-temp').innerText = `${temp}°C`;
+                    
+                    let desc = "Cerah";
+                    let icon = "fa-sun";
+                    if (code >= 1 && code <= 3) { desc = "Berawan"; icon = "fa-cloud-sun"; }
+                    else if (code >= 45 && code <= 48) { desc = "Berkabut"; icon = "fa-smog"; }
+                    else if (code >= 51 && code <= 67) { desc = "Hujan Gerimis"; icon = "fa-cloud-rain"; }
+                    else if (code >= 80 && code <= 99) { desc = "Hujan Badai"; icon = "fa-cloud-showers-heavy"; }
+                    
+                    document.getElementById('weather-desc').innerHTML = `<i class="fa-solid ${icon} text-nothing-red"></i> ${desc}`;
+                }
+            } catch(e) {
+                console.warn("Weather Fetch Failed", e);
+            }
+
+            // 3. Aladhan Prayer API
+            try {
+                const prayerResp = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=20`);
                 const prayerData = await prayerResp.json();
                 if (prayerData && prayerData.data && prayerData.data.timings) {
                     prayerTimesData = prayerData.data.timings;
@@ -423,12 +451,14 @@
                     document.getElementById('time-isha').innerText = prayerTimesData.Isha;
 
                     const timeZone = prayerData.data.meta.timezone || "LOKAL";
-                    document.getElementById('prayer-zone').innerText = timeZone.split('/')[1] || timeZone;
+                    document.getElementById('prayer-zone').innerText = (timeZone.split('/')[1] || timeZone).substring(0, 10);
 
                     highlightUpcomingPrayer();
                 }
             } catch(e) {
-                console.warn("Gagal mengambil jadwal sholat:", e);
+                console.warn("Prayer Times Fetch Failed", e);
+            } finally {
+                isFetchingApi = false;
             }
         }
 
@@ -449,156 +479,146 @@
             let activeId = 'fajr';
             for (let i = 0; i < prayers.length; i++) {
                 const [h, m] = prayers[i].time.split(':').map(Number);
-                const pMin = h * 60 + m;
-                if (currentMinutes >= pMin) {
+                if (currentMinutes >= (h * 60 + m)) {
                     activeId = prayers[i].id;
                 }
             }
 
-            // Reset Styles
             ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(id => {
                 const card = document.getElementById(`card-${id}`);
                 if (card) {
-                    card.className = "flex flex-col items-center p-1.5 rounded-xl bg-white/5 border border-white/5 transition-all";
+                    card.className = "flex flex-col items-center p-1 rounded-lg bg-white/5 border border-white/5";
                 }
             });
 
-            // Highlight Active Prayer Card
             const activeCard = document.getElementById(`card-${activeId}`);
             if (activeCard) {
-                activeCard.className = "flex flex-col items-center p-1.5 rounded-xl bg-nothing-red/20 border border-nothing-red shadow-[0_0_8px_rgba(215,25,33,0.3)] transition-all";
+                activeCard.className = "flex flex-col items-center p-1 rounded-lg bg-nothing-red/20 border border-nothing-red";
             }
         }
 
-        // --- REAL GEOLOCATION WATCH ---
-        function initGeolocation() {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.watchPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        currentCoords = [lat, lon];
+        // --- SAFE GEOLOCATION HANDLER ---
+        function updatePositionData(position) {
+            try {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                currentCoords = [lat, lon];
 
-                        // Tarik data jadwal sholat & lokasi jika berpindah tempat > 5 KM atau saat awal pemuatan
-                        if (!lastFetchPrayerLat || calculateDistance(lastFetchPrayerLat, lastFetchPrayerLon, lat, lon) > 5) {
-                            lastFetchPrayerLat = lat;
-                            lastFetchPrayerLon = lon;
-                            fetchLocationAndPrayerTimes(lat, lon);
-                        }
+                if (!lastFetchPrayerLat || calculateDistance(lastFetchPrayerLat, lastFetchPrayerLon, lat, lon) > 5) {
+                    lastFetchPrayerLat = lat;
+                    lastFetchPrayerLon = lon;
+                    fetchLocationAndPrayerTimes(lat, lon);
+                }
 
-                        // Dapatkan Kecepatan Real dari GPS (m/s ke km/h)
-                        let speedKmH = 0;
-                        if (position.coords.speed !== null && position.coords.speed !== undefined) {
-                            speedKmH = Math.round(position.coords.speed * 3.6);
-                        } else if (lastPosition) {
-                            const dist = calculateDistance(lastPosition.lat, lastPosition.lon, lat, lon);
-                            const timeDiffSec = (position.timestamp - lastPosition.timestamp) / 1000;
-                            if (timeDiffSec > 0) {
-                                speedKmH = Math.round((dist / timeDiffSec) * 3600);
-                            }
-                        }
+                let speedKmH = 0;
+                if (position.coords.speed !== null && position.coords.speed !== undefined && position.coords.speed > 0) {
+                    speedKmH = Math.round(position.coords.speed * 3.6);
+                }
 
-                        // Update tampilan kecepatan
-                        const speedEl = document.getElementById('current-speed');
-                        if (speedEl) {
-                            speedEl.innerText = speedKmH > 0 ? speedKmH : 0;
-                        }
+                const speedEl = document.getElementById('current-speed');
+                if (speedEl) speedEl.innerText = speedKmH;
 
-                        // Update Jarak Tempuh jika bergerak (>3 km/h)
-                        if (speedKmH > 3) {
-                            isDriving = true;
-                            if (lastPosition) {
-                                const deltaDist = calculateDistance(lastPosition.lat, lastPosition.lon, lat, lon);
-                                if (deltaDist > 0.005) { // filter drift > 5 meter
-                                    tripDist += deltaDist;
-                                    const distEl = document.getElementById('trip-distance');
-                                    if (distEl) {
-                                        distEl.innerText = tripDist.toFixed(1);
-                                    }
-                                }
-                            }
-                        } else {
-                            isDriving = false;
-                        }
-
-                        // Update Peta & Posisi Marker
-                        if (map && carMarker) {
-                            carMarker.setLatLng(currentCoords);
-                            map.panTo(currentCoords);
-                        }
-
-                        // Status GPS Connected
-                        const gpsText = document.getElementById('gps-text');
-                        if (gpsText) gpsText.innerText = 'GPS AKTIF';
-
-                        lastPosition = { lat, lon, timestamp: position.timestamp };
-                    },
-                    (error) => {
-                        console.warn("GPS Access Error/Denied:", error);
-                        const gpsText = document.getElementById('gps-text');
-                        if (gpsText) gpsText.innerText = 'GPS DISCONNECTED';
-
-                        // Default fallback fetch
-                        fetchLocationAndPrayerTimes(currentCoords[0], currentCoords[1]);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        maximumAge: 1000,
-                        timeout: 10000
+                if (lastPosition && speedKmH > 2) {
+                    const deltaDist = calculateDistance(lastPosition.lat, lastPosition.lon, lat, lon);
+                    if (deltaDist > 0.005) {
+                        tripDist += deltaDist;
+                        const distEl = document.getElementById('trip-distance');
+                        if (distEl) distEl.innerText = tripDist.toFixed(1);
                     }
+                }
+
+                if (map && carMarker) {
+                    carMarker.setLatLng(currentCoords);
+                    map.panTo(currentCoords, { animate: false });
+                }
+
+                const gpsText = document.getElementById('gps-text');
+                if (gpsText) gpsText.innerText = 'GPS AKTIF';
+
+                lastPosition = { lat, lon, timestamp: position.timestamp };
+            } catch (e) {
+                console.warn("GPS Update Handler Error", e);
+            }
+        }
+
+        function handleGeoError(error) {
+            console.warn("GPS Access Error:", error);
+            const gpsText = document.getElementById('gps-text');
+            if (gpsText) gpsText.innerText = 'GPS DISCONNECTED';
+            fetchLocationAndPrayerTimes(currentCoords[0], currentCoords[1]);
+        }
+
+        function requestAndInitGeolocation() {
+            const gpsText = document.getElementById('gps-text');
+            if (gpsText) gpsText.innerText = 'MEMINTA IZIN...';
+
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        updatePositionData(position);
+                        navigator.geolocation.watchPosition(
+                            updatePositionData,
+                            handleGeoError,
+                            { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 }
+                        );
+                    },
+                    (error) => handleGeoError(error),
+                    { enableHighAccuracy: true, timeout: 10000 }
                 );
             } else {
                 fetchLocationAndPrayerTimes(currentCoords[0], currentCoords[1]);
             }
         }
 
-        // --- LEAFLET MAP INITIALIZATION ---
+        // --- INITIALIZATION ON LOAD ---
         window.onload = function() {
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView(currentCoords, 15);
+            try {
+                map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false,
+                    preferCanvas: true
+                }).setView(currentCoords, 15);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    minZoom: 5
+                }).addTo(map);
 
-            const carIcon = L.divIcon({
-                className: 'custom-car-marker',
-                html: `<div class="w-6 h-6 rounded-full bg-nothing-red border-2 border-white shadow-[0_0_15px_#D71921] animate-pulse"></div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
-            });
+                const carIcon = L.divIcon({
+                    className: 'custom-car-marker',
+                    html: `<div class="w-5 h-5 rounded-full bg-nothing-red border-2 border-white shadow-[0_0_10px_#D71921]"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
 
-            carMarker = L.marker(currentCoords, { icon: carIcon }).addTo(map);
+                carMarker = L.marker(currentCoords, { icon: carIcon }).addTo(map);
+            } catch (e) {
+                console.warn("Map Init Error:", e);
+            }
 
-            // Inisialisasi pelacakan GPS riil & jadwal salat
-            initGeolocation();
+            requestAndInitGeolocation();
         };
 
         function centerMap() {
-            if (map) {
-                map.flyTo(currentCoords, 16, { animate: true, duration: 1 });
+            if (map && currentCoords) {
+                map.flyTo(currentCoords, 16, { animate: true, duration: 0.8 });
             }
         }
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        // --- ACTION HANDLERS & NATIVE LAUNCHER SWITCHING ---
+        // --- SAFE ANDROID INTENT HANDLERS ---
         function openNativeLauncher() {
-            // Membuka Home / Launcher Bawaan Android via Intent Scheme / Go Home
+            try {
+                window.location.href = "intent:#Intent;action=android.intent.action.ALL_APPS;end";
+            } catch(e) {
+                openNativeHome();
+            }
+        }
+
+        function openNativeHome() {
             try {
                 window.location.href = "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;end";
             } catch(e) {
-                console.log("Navigating to home screen...");
+                console.log("Fallback Home navigation...");
             }
         }
 
@@ -606,7 +626,7 @@
             try {
                 window.location.href = "intent:#Intent;action=android.settings.SETTINGS;end";
             } catch(e) {
-                alert("Membuka Pengaturan Sistem...");
+                console.log("Settings opening fallback...");
             }
         }
 
@@ -614,27 +634,36 @@
             try {
                 window.location.href = "intent:#Intent;action=android.intent.action.MUSIC_PLAYER;end";
             } catch(e) {
-                alert("Membuka Pemutar Musik...");
+                console.log("Music opening fallback...");
             }
         }
 
-        // --- APP DRAWER TOGGLE LOGIC ---
+        function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            } catch (e) {
+                console.warn("Fullscreen toggle error", e);
+            }
+        }
+
         function toggleAppDrawer() {
             const drawer = document.getElementById('app-drawer');
             if (drawer) {
                 if (drawer.classList.contains('hidden')) {
                     drawer.classList.remove('hidden');
-                    requestAnimationFrame(() => {
-                        drawer.classList.remove('opacity-0', 'pointer-events-none');
-                        drawer.classList.add('opacity-100', 'flex');
-                    });
+                    drawer.classList.remove('opacity-0', 'pointer-events-none');
+                    drawer.classList.add('opacity-100', 'flex');
                 } else {
                     drawer.classList.remove('opacity-100');
                     drawer.classList.add('opacity-0', 'pointer-events-none');
                     setTimeout(() => {
                         drawer.classList.add('hidden');
                         drawer.classList.remove('flex');
-                    }, 200);
+                    }, 150);
                 }
             }
         }
